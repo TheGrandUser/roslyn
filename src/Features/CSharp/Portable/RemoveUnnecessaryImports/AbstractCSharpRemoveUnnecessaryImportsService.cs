@@ -20,7 +20,7 @@ namespace Microsoft.CodeAnalysis.CSharp.RemoveUnnecessaryImports
         AbstractRemoveUnnecessaryImportsService<UsingDirectiveSyntax>
     {
         public override async Task<Document> RemoveUnnecessaryImportsAsync(
-            Document document, 
+            Document document,
             Func<SyntaxNode, bool> predicate,
             CancellationToken cancellationToken)
         {
@@ -37,7 +37,7 @@ namespace Microsoft.CodeAnalysis.CSharp.RemoveUnnecessaryImports
                 var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
                 var oldRoot = (CompilationUnitSyntax)root;
-                var newRoot = (CompilationUnitSyntax)new Rewriter(unnecessaryImports, cancellationToken).Visit(oldRoot);
+                var newRoot = (CompilationUnitSyntax)new Rewriter(this, document, unnecessaryImports, cancellationToken).Visit(oldRoot);
 
                 cancellationToken.ThrowIfCancellationRequested();
                 return document.WithSyntaxRoot(await FormatResultAsync(document, newRoot, cancellationToken).ConfigureAwait(false));

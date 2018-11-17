@@ -31,7 +31,26 @@ namespace Microsoft.CodeAnalysis.LanguageServices
         bool IsPredefinedType(SyntaxToken token, PredefinedType type);
         bool IsPredefinedOperator(SyntaxToken token);
         bool IsPredefinedOperator(SyntaxToken token, PredefinedOperator op);
+        /// <summary>
+        /// Determine if <paramref name="token"/> is a keyword. i.e. both reserved and contextual.
+        /// For example:
+        ///     IsKeyword("class") == true
+        ///     IsKeyword("async") == true
+        /// </summary>
         bool IsKeyword(SyntaxToken token);
+        /// <summary>
+        /// Determine if <paramref name="text"/> is a reserved keyword. i.e. not contextual.
+        /// For example:
+        ///     IsReservedKeyword("class") == true
+        ///     IsReservedKeyword("async") == false
+        /// </summary>
+        bool IsReservedKeyword(string text);
+        /// <summary>
+        /// Determine if <paramref name="token"/> is a contextual keyword. i.e. not reserved.
+        /// For example:
+        ///     IsContextualKeyword("class") == false
+        ///     IsContextualKeyword("async") == true
+        /// </summary>
         bool IsContextualKeyword(SyntaxToken token);
         bool IsPreprocessorKeyword(SyntaxToken token);
         bool IsHashToken(SyntaxToken token);
@@ -60,9 +79,10 @@ namespace Microsoft.CodeAnalysis.LanguageServices
         bool IsNullLiteralExpression(SyntaxNode node);
         bool IsDefaultLiteralExpression(SyntaxNode node);
         bool IsLiteralExpression(SyntaxNode node);
-        bool IsFalseLiteralExpression(SyntaxNode expression);
-        bool IsTrueLiteralExpression(SyntaxNode expression);
-
+        bool IsFalseLiteralExpression(SyntaxNode node);
+        bool IsTrueLiteralExpression(SyntaxNode node);
+        bool IsThisExpression(SyntaxNode node);
+        bool IsBaseExpression(SyntaxNode node);
 
         string GetText(int kind);
         bool IsInInactiveRegion(SyntaxTree syntaxTree, int position, CancellationToken cancellationToken);
@@ -118,6 +138,7 @@ namespace Microsoft.CodeAnalysis.LanguageServices
 
         bool IsSimpleAssignmentStatement(SyntaxNode statement);
         void GetPartsOfAssignmentStatement(SyntaxNode statement, out SyntaxNode left, out SyntaxToken operatorToken, out SyntaxNode right);
+        void GetPartsOfAssignmentExpressionOrStatement(SyntaxNode statement, out SyntaxNode left, out SyntaxToken operatorToken, out SyntaxNode right);
 
         // Left side of any assignment (for example  *=  or += )
         bool IsLeftSideOfAnyAssignment(SyntaxNode node);
@@ -154,6 +175,7 @@ namespace Microsoft.CodeAnalysis.LanguageServices
         bool IsPointerMemberAccessExpression(SyntaxNode node);
 
         bool IsNamedParameter(SyntaxNode node);
+        SyntaxToken? GetNameOfParameter(SyntaxNode node);
         SyntaxNode GetDefaultOfParameter(SyntaxNode node);
         SyntaxNode GetParameterList(SyntaxNode node);
 
@@ -163,15 +185,14 @@ namespace Microsoft.CodeAnalysis.LanguageServices
         bool IsEndOfLineTrivia(SyntaxTrivia trivia);
         bool IsDocumentationCommentExteriorTrivia(SyntaxTrivia trivia);
 
-        SyntaxNode GetExpressionOfConditionalAccessExpression(SyntaxNode node);
-
-        SyntaxNode GetExpressionOfElementAccessExpression(SyntaxNode node);
-        SyntaxNode GetArgumentListOfElementAccessExpression(SyntaxNode node);
+        void GetPartsOfElementAccessExpression(SyntaxNode node, out SyntaxNode expression, out SyntaxNode argumentList);
 
         SyntaxNode GetExpressionOfArgument(SyntaxNode node);
         SyntaxNode GetExpressionOfInterpolation(SyntaxNode node);
-        bool IsConditionalMemberAccessExpression(SyntaxNode node);
         SyntaxNode GetNameOfAttribute(SyntaxNode node);
+
+        bool IsConditionalAccessExpression(SyntaxNode node);
+        void GetPartsOfConditionalAccessExpression(SyntaxNode node, out SyntaxNode expression, out SyntaxNode whenNotNull);
 
         bool IsParenthesizedExpression(SyntaxNode node);
         SyntaxNode GetExpressionOfParenthesizedExpression(SyntaxNode node);
@@ -203,6 +224,7 @@ namespace Microsoft.CodeAnalysis.LanguageServices
         bool IsUsingDirectiveName(SyntaxNode node);
         bool IsIdentifierName(SyntaxNode node);
         bool IsGenericName(SyntaxNode node);
+        bool IsQualifiedName(SyntaxNode node);
 
         bool IsAttribute(SyntaxNode node);
         bool IsAttributeName(SyntaxNode node);
